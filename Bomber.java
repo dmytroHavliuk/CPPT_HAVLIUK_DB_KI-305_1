@@ -1,67 +1,76 @@
+/**
+* Пакет лабораторної роботи №3
+*/
 package KI305.Havliuk.Lab3;
 
+import java.io.FileNotFoundException;
+
 /**
- * Інтерфейс <code>WeaponSystem</code> визначає функціонал системи зброї.
+ * Інтерфейс Flyable визначає контракт для об'єктів, що можуть літати
+ * @author Dmitry Havliuk
+ * @version 1.0
  */
-interface WeaponSystem {
-    void armWeapons();
-    void dropBombs();
+interface Flyable {
+    /**
+     * Метод для початку польоту
+     */
+    void takeOff();
+
+    /**
+     * Метод для посадки
+     */
+    void land();
+    
+    /**
+     * Метод для виконання спеціальної дії літака
+     */
+    void performSpecialFunction();
 }
 
 /**
- * Клас <code>Bomber</code> представляє бомбардувальник, що розширює базовий клас <code>Plane</code>.
- * Реалізовує інтерфейс <code>WeaponSystem</code> для управління зброєю.
- * @author Dmytro Havliuk
- * @version 1.0
+ * Клас Bomber успадковує Plane і додає функціонал для скидання бомб
  */
-public class Bomber extends Plane implements WeaponSystem {
+public class Bomber extends Plane {
+    private int bombs;
 
-    private boolean weaponsArmed;
-
-    /**
-     * Конструктор для ініціалізації бомбардувальника.
-     * @param horsepower потужність двигуна
-     * @param frequency частота радіозв'язку
-     * @param latitude початкова широта
-     * @param longitude початкова довгота
-     */
-    public Bomber(int horsepower, double frequency, double latitude, double longitude) {
-        super(horsepower, frequency, latitude, longitude);
-        this.weaponsArmed = false;
+    public Bomber(int speed, int altitude, String model, int bombs) throws FileNotFoundException {
+        super(speed, altitude, model);
+        this.bombs = bombs;
+        logAct("Створено бомбардувальник " + model + " з кількістю бомб: " + bombs);
     }
-
-    /**
-     * Озброює бомби на борту.
-     */
-    @Override
-    public void armWeapons() {
-        this.weaponsArmed = true;
-        System.out.println("Weapons armed.");
+    
+    public int getBombs() {
+        logAct("Отримано кількість бомб: " + bombs);
+        return bombs;
     }
-
-    /**
-     * Викидає бомби під час місії.
-     */
+    
+    public void setBombs(int bombs) {
+        this.bombs = bombs;
+        logAct("Кількість бомб змінена на " + bombs);
+    }
+    
     @Override
-    public void dropBombs() {
-        if (weaponsArmed) {
-            System.out.println("Dropping bombs...");
-            this.weaponsArmed = false;
+    public void performSpecialFunction() {
+        if (bombs > 0) {
+            logAct("Скидання бомби. Залишилось бомб: " + (bombs - 1));
+            System.out.println("Скидання бомби! Залишилося бомб: " + --bombs);
         } else {
-            System.out.println("Weapons not armed.");
+            logAct("Спроба скинути бомбу, коли немає бомб.");
+            System.out.println("Немає бомб для скидання.");
         }
     }
+    
+    public void dropBomb() {
+        performSpecialFunction();
+    }
+    
+    public void takeOff() {
+        logAct("Бомбардувальник " + getModel() + " злітає.");
+        System.out.println("Бомбардувальник " + getModel() + " злітає.");
+    }
 
-    /**
-     * Виконує місію бомбардувальника.
-     * У цьому випадку бомби скидаються.
-     */
-    @Override
-    public void executeMission() {
-        System.out.println("Bomber executing mission...");
-        startEngine();
-        armWeapons();
-        dropBombs();
-        shutdown();
+    public void land() {
+        logAct("Бомбардувальник " + getModel() + " приземляється.");
+        System.out.println("Бомбардувальник " + getModel() + " приземляється.");
     }
 }
