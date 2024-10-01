@@ -1,138 +1,111 @@
+/**
+ * Пакет лабораторної роботи №3
+ */
 package KI305.Havliuk.Lab3;
 
+import java.io.*;
+
 /**
- * Абстрактний клас <code>Plane</code> представляє загальні властивості літака.
- * Містить базові характеристики і методи для різних типів літаків.
+ * Абстрактний клас <code>Plane</code> описує основні параметри літака
  * @author Dmytro Havliuk
  * @version 1.0
  */
-public abstract class Plane {
-	protected Engine engine;
-    protected CommunicationSystem comms;
-    protected NavigationSystem navigation;
+abstract public class Plane {
+    private int speed;
+    private int altitude;
+    private String model;
+    protected PrintWriter fout;
+    static private int plane_count = 0;
+    
+    /**
+     * Створює літак з заданими параметрами.
+     * @param speed швидкість польоту
+     * @param altitude висота польоту
+     * @param model модель літака
+     * @throws FileNotFoundException якщо файл для запису логів не може 
+    бути відкрито
+     */
+    public Plane(int speed, int altitude, String model) throws FileNotFoundException {
+        this.speed = speed;
+        this.altitude = altitude;
+        this.model = model;
+        plane_count++;
+        fout = new PrintWriter(new File("PlaneLog" + plane_count + ".txt"));
+        logAct("Створено літак: " + model + " зі швидкістю " + speed + " км/год та висотою " + altitude + " м.");
+    }
+    
+    /**
+     * Повертає швидкість літака.
+     */
+    public int getSpeed() {
+        logAct("Отримано швидкість: " + speed + " км/год.");
+        return speed;
+    }
+    
+    /**
+     * Встановює швидкість літака.
+     */
+    public void setSpeed(int speed) {
+        this.speed = speed;
+        logAct("Швидкість літака змінено на " + speed + " км/год.");
+    }
+    
+    /**
+     * Повертає висоту польоту літака.
+     */
+    public int getAltitude() {
+        logAct("Отримано висоту польоту: " + altitude + " метрів.");
+        return altitude;
+    }
+    
+    /**
+     * Встановює висоту польоту літака.
+     */
+    public void setAltitude(int altitude) {
+        this.altitude = altitude;
+        logAct("Висота польоту змінена на " + altitude + " метрів.");
+    }
+    
+    /**
+     * Повертає модель літака.
+     */
+    public String getModel() {
+        logAct("Отримано модель літака: " + model);
+        return model;
+    }
+    
+    /**
+     * Встановює модель літака.
+     */
+    public void setModel(String model) {
+        this.model = model;
+        logAct("Модель літака змінено на " + model);
+    }
+    
+    /**
+     * Створює літак з заданими параметрами.
+     */
+    public void fly() {
+        logAct("Літак " + model + " летить на висоті " + altitude + " метрів зі швидкістю " + speed + " км/год.");
+        System.out.println("Літак " + model + " летить на висоті " + altitude + " метрів зі швидкістю " + speed + " км/год.");
+    }
+    
+    public abstract void performSpecialFunction();
 
     /**
-     * Конструктор для ініціалізації літака.
-     * @param horsepower потужність двигуна
-     * @param frequency частота радіозв'язку
-     * @param latitude початкова широта
-     * @param longitude початкова довгота
+     * Логування дій у файл
+     * @param message повідомлення для запису у файл
      */
-    public Plane(int horsepower, double frequency, double latitude, double longitude) {
-        this.engine = new Engine(horsepower);
-        this.comms = new CommunicationSystem(frequency);
-        this.navigation = new NavigationSystem(latitude, longitude);
+    protected void logAct(String message) {
+        fout.println(message);
+        fout.flush(); // Для негайного запису у файл
     }
-
+    
     /**
-     * Запускає двигун літака.
+     * Закриття ресурсу для запису у файл
      */
-    public void startEngine() {
-        engine.start();
-    }
-
-    /**
-     * Зупиняє двигун літака.
-     */
-    public void stopEngine() {
-        engine.stop();
-    }
-
-    /**
-     * Абстрактний метод для запуску місії літака. Має бути реалізований у підкласах.
-     */
-    public abstract void executeMission();
-
-    /**
-     * Вимикає всі системи літака.
-     */
-    public void shutdown() {
-        engine.stop();
-        comms.deactivate();
-        System.out.println("Plane shutdown completed.");
-    }
-}
-/**
- * Клас <code>Engine</code> представляє двигун літака.
- */
-class Engine {
-    private int horsepower;
-    private boolean running;
-
-    public Engine(int horsepower) {
-        this.horsepower = horsepower;
-        this.running = false;
-    }
-
-    public void start() {
-        this.running = true;
-        System.out.println("Engine started with " + horsepower + " horsepower.");
-    }
-
-    public void stop() {
-        this.running = false;
-        System.out.println("Engine stopped.");
-    }
-
-    /**
-     * Перевіряє, чи працює двигун.
-     * @return true, якщо двигун працює, false — якщо зупинений
-     */
-    public boolean isRunning() {
-        return running;
-    }
-}
-
-/**
- * Клас <code>CommunicationSystem</code> представляє систему зв'язку літака.
- */
-class CommunicationSystem {
-    private double frequency;
-    private boolean active;
-
-    public CommunicationSystem(double frequency) {
-        this.frequency = frequency;
-        this.active = false;
-    }
-
-    public void activate() {
-        this.active = true;
-        System.out.println("Communication system activated at frequency " + frequency + " MHz.");
-    }
-
-    public void deactivate() {
-        this.active = false;
-        System.out.println("Communication system deactivated.");
-    }
-
-    /**
-     * Перевіряє, чи активна система зв'язку.
-     * @return true, якщо система активна, false — якщо вимкнена
-     */
-    public boolean isActive() {
-        return active;
+    public void dispose() {
+        fout.close();
     }
 }
 
-
-/**
- * Клас <code>NavigationSystem</code> представляє навігаційну систему літака.
- */
-class NavigationSystem {
-    private double latitude;
-    private double longitude;
-
-    public NavigationSystem(double latitude, double longitude) {
-        this.latitude = latitude;
-        this.longitude = longitude;
-    }
-
-    public String getPosition() {
-        return latitude + ", " + longitude;
-    }
-
-    public void updatePosition(double latitude, double longitude) {
-        this.latitude = latitude;
-        this.longitude = longitude;
-    }
-}
